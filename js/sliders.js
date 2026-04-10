@@ -52,6 +52,14 @@ function bindRunSlider(sliderId, displayId) {
   };
 
   const fromDisplay = () => {
+    // Auto-insert colon when the user types bare digits: "1200" → "12:00", "923" → "9:23"
+    const raw    = display.value;
+    const digits = raw.replace(/\D/g, '');
+    if (!raw.includes(':')) {
+      if      (digits.length === 4) display.value = digits.slice(0, 2) + ':' + digits.slice(2);
+      else if (digits.length === 3) display.value = digits.slice(0, 1) + ':' + digits.slice(1);
+    }
+
     const secs = mmssToSecs(display.value);
     if (isNaN(secs)) {
       display.classList.add("input-invalid");
