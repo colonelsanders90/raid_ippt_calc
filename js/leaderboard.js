@@ -59,10 +59,10 @@ function validateForm(rank, name) {
 }
 
 // Reads slider/form values and returns a complete entry object (no API call)
-function buildEntry(rank, name, gender, age, pushups, situps, runSecs) {
+function buildEntry(rank, name, gender, age, pushups, situps, runSecs, branch) {
   const { puPts, suPts, runPts, total } = computeScore(gender, age, pushups, situps, runSecs);
   return {
-    rank, name, gender, age, pushups, situps,
+    rank, name, gender, age, pushups, situps, branch,
     run: secsToMMSS(runSecs), puPts, suPts, runPts, total,
     award: getAward(total),
   };
@@ -85,6 +85,7 @@ function buildRow(s, rank) {
       <td>${displayName}</td>
       <td><strong>${s.total}</strong></td>
       <td><span class="badge ${awardCls[s.award] || ""}">${s.award}</span></td>
+      <td><span class="branch-tag">${escHtml(s.branch || 'HQ RAiD')}</span></td>
       <td>${s.pushups} <span class="pts">(${s.puPts})</span></td>
       <td>${s.situps} <span class="pts">(${s.suPts})</span></td>
       <td>${s.run} <span class="pts">(${s.runPts})</span></td>
@@ -182,6 +183,31 @@ function renderTable() {
     return;
   }
 
+  if (currentView === "branch") {
+    // Group by branch, rank branches by average score
+    const groups = {};
+    for (const s of scores) {
+      const b = s.branch || "HQ RAiD";
+      if (!groups[b]) groups[b] = [];
+      groups[b].push(s);
+    }
+    const sorted = Object.entries(groups).sort((a, b) => {
+      const avgA = a[1].reduce((t, s) => t + s.total, 0) / a[1].length;
+      const avgB = b[1].reduce((t, s) => t + s.total, 0) / b[1].length;
+      return avgB - avgA;
+    });
+    tbody.innerHTML = sorted.map(([branch, members], bi) => {
+      const avg   = (members.reduce((t, s) => t + s.total, 0) / members.length).toFixed(1);
+      const golds = members.filter(s => s.award === "Gold").length;
+      const medal = bi === 0 ? "🏆 " : bi === 1 ? "🥈 " : bi === 2 ? "🥉 " : "";
+      const info  = `${golds > 0 ? ` &nbsp;·&nbsp; ${golds} Gold` : ""}`;
+      const header = `${medal}<strong>${escHtml(branch)}</strong> &nbsp;·&nbsp; ${members.length} member${members.length !== 1 ? "s" : ""} &nbsp;·&nbsp; Avg ${avg}${info}`;
+      return `<tr class="group-header"><td colspan="11">${header}</td></tr>`
+        + [...members].sort((a, b) => b.total - a.total).map((s, i) => buildRow(s, i)).join("");
+    }).join("");
+    return;
+  }
+
   // By age group
   const groups = {};
   for (const s of scores) {
@@ -194,7 +220,7 @@ function renderTable() {
     .map(Number).sort((a, b) => a - b)
     .map((ag) => {
       const members = [...groups[ag]].sort((a, b) => b.total - a.total);
-      return `<tr class="group-header"><td colspan="10">${AGE_GROUP_LABELS[ag]}</td></tr>`
+      return `<tr class="group-header"><td colspan="11">${AGE_GROUP_LABELS[ag]}</td></tr>`
         + members.map((s, i) => buildRow(s, i)).join("");
     }).join("");
 }
@@ -284,11 +310,12 @@ document.getElementById("score-form").addEventListener("submit", async (e) => {
   }
 
   const gender  = fd.get("gender");
+  const branch  = fd.get("branch");
   const age     = parseInt(document.getElementById("age-slider").value,    10);
   const pushups = parseInt(document.getElementById("pushups-slider").value, 10);
   const situps  = parseInt(document.getElementById("situps-slider").value,  10);
   const runSecs = parseInt(document.getElementById("run-slider").value,     10);
-  const entry   = buildEntry(rank, name, gender, age, pushups, situps, runSecs);
+  const entry   = buildEntry(rank, name, gender, age, pushups, situps, runSecs, branch);
 
   const btn = e.target.querySelector('.btn-primary');
   btn.disabled    = true;

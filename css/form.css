@@ -1,7 +1,7 @@
 /* ── Form — top row ──────────────────────────────────────── */
 .form-top {
   display: grid;
-  grid-template-columns: 8rem 1fr auto;
+  grid-template-columns: 8rem 1fr auto auto;
   gap: 1rem;
   margin-bottom: 1.5rem;
   align-items: start;
@@ -195,4 +195,5 @@ input[type="range"]:active::-webkit-slider-thumb {
   .form-top .field-rank { grid-column: 1; }
   .form-top .field-name { grid-column: 1 / -1; }
   .form-sliders { grid-template-columns: repeat(2, 1fr); }
+  .form-top .field-branch { grid-column: 1 / -1; }
 }

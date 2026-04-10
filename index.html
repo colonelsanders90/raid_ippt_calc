@@ -56,6 +56,7 @@
           <div class="view-toggle" role="group" aria-label="View mode">
             <button class="toggle-btn active" data-view="overall">Overall</button>
             <button class="toggle-btn" data-view="age-group">By Age Group</button>
+            <button class="toggle-btn" data-view="branch">By Branch</button>
           </div>
         </div>
         <p id="empty-state" hidden>No scores yet. Add the first entry above.</p>
@@ -67,6 +68,7 @@
                 <th>Rank / Name</th>
                 <th>Total</th>
                 <th>Award</th>
+                <th>Branch</th>
                 <th>Push-ups</th>
                 <th>Sit-ups</th>
                 <th>2.4km</th>
@@ -239,6 +241,19 @@
               <select name="gender" required>
                 <option value="M">Male</option>
                 <option value="F">Female</option>
+              </select>
+            </label>
+            <label class="field-branch">
+              Branch / Sub-unit
+              <select name="branch" required>
+                <option value="ACUBE">ACUBE</option>
+                <option value="Cloud">Cloud</option>
+                <option value="Cyber">Cyber</option>
+                <option value="IKC2">IKC2</option>
+                <option value="MDT">MDT</option>
+                <option value="RDO">RDO</option>
+                <option value="P4B">P4B</option>
+                <option value="HQ RAiD" selected>HQ RAiD (PPCoE, CS)</option>
               </select>
             </label>
           </div>

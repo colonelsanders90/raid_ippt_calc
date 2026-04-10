@@ -21,6 +21,10 @@ async function ensureTable() {
       created_at TIMESTAMPTZ  DEFAULT NOW()
     )
   `;
+  // Migration: add branch column if it doesn't exist yet
+  await sql`
+    ALTER TABLE scores ADD COLUMN IF NOT EXISTS branch VARCHAR(30) DEFAULT 'HQ RAiD'
+  `;
 }
 
 export default async function handler(req, res) {
@@ -33,7 +37,7 @@ export default async function handler(req, res) {
                pu_pts  AS "puPts",
                su_pts  AS "suPts",
                run_pts AS "runPts",
-               total, award,
+               total, award, branch,
                created_at AS "createdAt"
         FROM scores
         ORDER BY total DESC
@@ -43,19 +47,19 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
       const { rank, name, gender, age, pushups, situps, run,
-              puPts, suPts, runPts, total, award } = req.body;
+              puPts, suPts, runPts, total, award, branch } = req.body;
       const [row] = await sql`
         INSERT INTO scores
           (rank, name, gender, age, pushups, situps, run,
-           pu_pts, su_pts, run_pts, total, award)
+           pu_pts, su_pts, run_pts, total, award, branch)
         VALUES
           (${rank}, ${name}, ${gender}, ${age}, ${pushups}, ${situps}, ${run},
-           ${puPts}, ${suPts}, ${runPts}, ${total}, ${award})
+           ${puPts}, ${suPts}, ${runPts}, ${total}, ${award}, ${branch ?? 'HQ RAiD'})
         RETURNING id, rank, name, gender, age, pushups, situps, run,
                   pu_pts  AS "puPts",
                   su_pts  AS "suPts",
                   run_pts AS "runPts",
-                  total, award,
+                  total, award, branch,
                   created_at AS "createdAt"
       `;
       return res.status(201).json(row);
