@@ -7,7 +7,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/form.css" />
+  <link rel="stylesheet" href="css/table.css" />
+  <link rel="stylesheet" href="css/chart.css" />
+  <link rel="stylesheet" href="css/calculator.css" />
 </head>
 <body>
 
@@ -83,7 +88,7 @@
       <section class="card safety-card">
         <div class="safety-header">
           <span class="safety-icon">🛡️</span>
-          <h2>Before You Run</h2>
+          <h2>Before Your IPPT</h2>
         </div>
         <ul class="safety-list">
           <li>😴 Get <strong>7+ hours of sleep</strong> the night before</li>
@@ -182,7 +187,7 @@
             <div class="calc-bar-track">
               <div class="calc-bar-fill calc-bar-gold" id="calc-bar-gold"></div>
             </div>
-            <span class="calc-incentive">💰 $300</span>
+            <span class="calc-incentive" id="calc-incentive-gold">💰 $300</span>
             <span class="calc-status" id="calc-status-gold"></span>
           </div>
           <div class="calc-target-row">
@@ -191,7 +196,7 @@
             <div class="calc-bar-track">
               <div class="calc-bar-fill calc-bar-silver" id="calc-bar-silver"></div>
             </div>
-            <span class="calc-incentive">💰 $200</span>
+            <span class="calc-incentive" id="calc-incentive-silver">💰 $200</span>
             <span class="calc-status" id="calc-status-silver"></span>
           </div>
           <div class="calc-target-row">

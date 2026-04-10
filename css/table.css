@@ -1,0 +1,172 @@
+/* ── Table ───────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  padding: 0.65rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border-soft);
+  transition: background 0.12s;
+}
+
+tbody tr:hover { background: var(--hover-bg); }
+
+td {
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+  color: var(--white);
+}
+
+.rank { font-size: 1.1rem; }
+
+/* ── Age group separator row ─────────────────────────────── */
+tr.group-header td {
+  padding: 0.5rem 1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--blue);
+  background: var(--black);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Award badges ────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge::before {
+  font-style: normal;
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+.gold {
+  background: linear-gradient(135deg, rgba(255,215,0,.22), rgba(200,140,0,.10));
+  color: #ffd040;
+  border: 1px solid rgba(255,215,0,.45);
+  box-shadow: 0 0 8px rgba(255,215,0,.15) inset;
+  text-shadow: 0 0 10px rgba(255,215,0,.5);
+}
+.gold::before { content: "★"; }
+
+.silver {
+  background: linear-gradient(135deg, rgba(210,210,210,.18), rgba(160,160,160,.08));
+  color: #d4d4d4;
+  border: 1px solid rgba(200,200,200,.38);
+  text-shadow: 0 0 8px rgba(220,220,220,.25);
+}
+.silver::before { content: "★"; }
+
+.pass {
+  background: var(--blue-dim);
+  color: var(--blue);
+  border: 1px solid var(--blue-border);
+}
+.pass::before { content: "✓"; }
+
+.fail {
+  background: rgba(218,54,51,.12);
+  color: #f85149;
+  border: 1px solid rgba(218,54,51,.30);
+}
+.fail::before { content: "✗"; }
+
+/* Light mode badge overrides */
+[data-theme="light"] .gold {
+  color: #8a6200;
+  background: rgba(200,140,0,.15);
+  border-color: rgba(160,110,0,.35);
+  box-shadow: none;
+  text-shadow: none;
+}
+
+[data-theme="light"] .silver {
+  color: #5a5a5a;
+  background: rgba(0,0,0,.06);
+  border-color: rgba(0,0,0,.18);
+  text-shadow: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .gold {
+    color: #8a6200;
+    background: rgba(200,140,0,.15);
+    border-color: rgba(160,110,0,.35);
+    box-shadow: none;
+    text-shadow: none;
+  }
+
+  :root:not([data-theme="dark"]) .silver {
+    color: #5a5a5a;
+    background: rgba(0,0,0,.06);
+    border-color: rgba(0,0,0,.18);
+    text-shadow: none;
+  }
+}
+
+/* ── Entry rank label in table ───────────────────────────── */
+.entry-rank {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ── Sub-score annotation ────────────────────────────────── */
+.pts {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* ── Delete button ───────────────────────────────────────── */
+.btn-delete {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.btn-delete:hover { color: #f85149; background: rgba(218,54,51,.12); }
+
+/* ── Empty state ─────────────────────────────────────────── */
+#empty-state {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* ── Mobile: show only #, Rank/Name, Total, Award, delete ── */
+@media (max-width: 640px) {
+  #leaderboard-table th:nth-child(n+5):nth-child(-n+9),
+  #leaderboard-table td:nth-child(n+5):nth-child(-n+9) {
+    display: none;
+  }
+}

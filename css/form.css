@@ -1,0 +1,193 @@
+/* ── Form — top row ──────────────────────────────────────── */
+.form-top {
+  display: grid;
+  grid-template-columns: 8rem 1fr auto;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: start;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Inline field error */
+.field-error {
+  display: block;
+  font-size: 0.74rem;
+  color: #f85149;
+  min-height: 1rem;
+  margin-top: 0.15rem;
+}
+
+input[type="text"],
+input[type="number"] {
+  padding: 0.5rem 0.75rem;
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--white);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+select {
+  padding: 0.5rem 0.75rem;
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--white);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+/* ── Form — scroller row ─────────────────────────────────── */
+.form-sliders {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Individual scroller field */
+.scroller-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 0.75rem 0.75rem;
+  transition: background 0.2s;
+}
+
+.field-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  align-self: flex-start;
+}
+
+.scroller-val {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  text-align: center;
+  width: 100%;
+  padding: 0.1rem 0;
+  font-family: inherit;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.scroller-val::-webkit-outer-spin-button,
+.scroller-val::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.scroller-val:focus {
+  outline: none;
+  border-bottom-color: var(--blue);
+}
+
+/* Range slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    var(--blue) var(--fill, 50%),
+    var(--border) var(--fill, 50%)
+  );
+  cursor: pointer;
+  outline: none;
+  border: none;
+  padding: 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--blue);
+  border: 2px solid var(--black);
+  box-shadow: 0 0 0 1px var(--blue);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--blue);
+  border: 2px solid var(--black);
+  box-shadow: 0 0 0 1px var(--blue);
+  cursor: pointer;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+
+.scroller-ends {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* ── Button ──────────────────────────────────────────────── */
+.btn-primary {
+  padding: 0.55rem 1.25rem;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-primary:hover { opacity: 0.85; }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .form-top     { grid-template-columns: 1fr 1fr; }
+  .form-top .field-rank { grid-column: 1; }
+  .form-top .field-name { grid-column: 1 / -1; }
+  .form-sliders { grid-template-columns: repeat(2, 1fr); }
+}

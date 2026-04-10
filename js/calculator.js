@@ -55,19 +55,22 @@
 
     // Award target rows
     for (const t of TARGETS) {
-      const pct    = Math.min(total / t.threshold, 1) * 100;
-      const away   = t.threshold - total;
-      const bar    = document.getElementById('calc-bar-'    + t.key);
-      const status = document.getElementById('calc-status-' + t.key);
+      const pct      = Math.min(total / t.threshold, 1) * 100;
+      const away     = t.threshold - total;
+      const bar      = document.getElementById('calc-bar-'      + t.key);
+      const status   = document.getElementById('calc-status-'   + t.key);
+      const incentive = document.getElementById('calc-incentive-' + t.key);
 
       bar.style.width = pct + '%';
 
       if (away <= 0) {
         status.textContent = 'Achieved';
         status.className   = 'calc-status calc-achieved';
+        if (incentive) incentive.classList.add('visible');
       } else {
         status.textContent = away + ' pts away';
         status.className   = 'calc-status calc-away';
+        if (incentive) incentive.classList.remove('visible');
       }
     }
   }

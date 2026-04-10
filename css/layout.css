@@ -1,0 +1,159 @@
+/* ── Header ─────────────────────────────────────────────── */
+header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-brand {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.header-logo {
+  height: 2.5rem;
+  width: auto;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  letter-spacing: 0.04em;
+  color: var(--white);
+}
+
+/* ── Theme toggle ────────────────────────────────────────── */
+.theme-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.theme-toggle:hover {
+  background: var(--hover-bg);
+  color: var(--white);
+  border-color: var(--muted);
+}
+
+/* ── Page nav ────────────────────────────────────────────── */
+.page-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  padding: 0.75rem 1rem 0;
+}
+
+.nav-btn {
+  padding: 0.5rem 1.5rem;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-btn:first-child         { border-radius: 6px 0 0 6px; }
+.nav-btn:last-child          { border-radius: 0 6px 6px 0; }
+.nav-btn:not(:first-child)   { border-left: none; }
+
+.nav-btn.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+/* ── Page sections ───────────────────────────────────────── */
+.page        { display: contents; }
+.page.hidden { display: none; }
+
+/* ── Main layout ─────────────────────────────────────────── */
+main {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  overflow: hidden;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.card h2 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+/* ── Rankings header ─────────────────────────────────────── */
+.rankings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* ── View toggle ─────────────────────────────────────────── */
+.view-toggle {
+  display: flex;
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.toggle-btn {
+  padding: 0.35rem 0.9rem;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.toggle-btn:not(:last-child) { border-right: 1px solid var(--border); }
+
+.toggle-btn.active {
+  background: var(--blue);
+  color: #fff;
+}
+
+/* ── Small screen layout ─────────────────────────────────── */
+@media (max-width: 480px) {
+  header { grid-template-columns: auto 1fr auto; gap: 0.5rem; }
+  .header-brand { grid-column: unset; }
+}
