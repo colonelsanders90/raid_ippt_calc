@@ -48,17 +48,28 @@ function bindRunSlider(sliderId, displayId) {
   const fromSlider = () => {
     display.value = secsToMMSS(slider.value);
     setSliderFill(slider);
+    display.classList.remove("input-invalid");
   };
 
   const fromDisplay = () => {
     const secs = mmssToSecs(display.value);
-    if (isNaN(secs)) return;
+    if (isNaN(secs)) {
+      display.classList.add("input-invalid");
+      return;
+    }
+    display.classList.remove("input-invalid");
     slider.value = Math.max(Number(slider.min), Math.min(Number(slider.max), secs));
     setSliderFill(slider);
     display.value = secsToMMSS(slider.value);
   };
 
+  // Block any character that isn't a digit or colon
+  display.addEventListener("keydown", (e) => {
+    if (e.key.length === 1 && !/[\d:]/.test(e.key)) e.preventDefault();
+  });
+
   slider.addEventListener("input", fromSlider);
+  display.addEventListener("input", fromDisplay);
   display.addEventListener("change", fromDisplay);
   display.addEventListener("blur",   fromDisplay);
   fromSlider();

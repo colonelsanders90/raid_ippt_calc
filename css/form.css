@@ -116,6 +116,11 @@ select:focus {
   border-bottom-color: var(--blue);
 }
 
+.scroller-val.input-invalid {
+  border-bottom-color: #f85149;
+  color: #f85149;
+}
+
 /* Range slider */
 input[type="range"] {
   -webkit-appearance: none;
