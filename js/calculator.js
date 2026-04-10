@@ -32,12 +32,24 @@
   // ---------------------------------------------------------------------------
   // Score calculation + UI update
   // ---------------------------------------------------------------------------
+  // Read a numeric display, falling back to its paired slider if the display is empty/invalid.
+  function readInt(displayId, sliderId) {
+    const v = parseInt(document.getElementById(displayId).value, 10);
+    return isNaN(v) ? parseInt(document.getElementById(sliderId).value, 10) : v;
+  }
+
   function updateCalcResults() {
     const gender  = document.getElementById('calc-gender').value;
-    const age     = parseInt(document.getElementById('calc-age-slider').value, 10);
-    const pushups = parseInt(document.getElementById('calc-pushups-slider').value, 10);
-    const situps  = parseInt(document.getElementById('calc-situps-slider').value, 10);
-    const runSecs = parseInt(document.getElementById('calc-run-slider').value, 10);
+    const age     = readInt('calc-age-display',     'calc-age-slider');
+    const pushups = readInt('calc-pushups-display', 'calc-pushups-slider');
+    const situps  = readInt('calc-situps-display',  'calc-situps-slider');
+
+    // For run: parse the display text directly so mid-type partial values don't
+    // lock the calculation to the last slider position.
+    const runRaw  = mmssToSecs(document.getElementById('calc-run-display').value);
+    const runSecs = isNaN(runRaw)
+      ? parseInt(document.getElementById('calc-run-slider').value, 10)
+      : runRaw;
 
     const { puPts, suPts, runPts, total } = computeScore(gender, age, pushups, situps, runSecs);
     const award = getAward(total);
