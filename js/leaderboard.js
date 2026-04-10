@@ -1,4 +1,56 @@
-const STORAGE_KEY = "raid_ippt_scores";
+// ---------------------------------------------------------------------------
+// Module-level scores cache (populated from API)
+// ---------------------------------------------------------------------------
+let scores = [];
+
+// ---------------------------------------------------------------------------
+// API helpers
+// ---------------------------------------------------------------------------
+async function apiFetchScores() {
+  const res = await fetch('/api/scores');
+  if (!res.ok) throw new Error('Failed to fetch scores');
+  return res.json();
+}
+
+async function apiAddScore(entry) {
+  const res = await fetch('/api/scores', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entry),
+  });
+  if (!res.ok) throw new Error('Failed to add score');
+  return res.json();
+}
+
+async function apiDeleteScore(id, password) {
+  const res = await fetch(`/api/scores/${id}`, {
+    method: 'DELETE',
+    headers: { 'X-Admin-Password': password },
+  });
+  if (res.status === 401) {
+    const err = new Error('Unauthorized');
+    err.status = 401;
+    throw err;
+  }
+  if (!res.ok) throw new Error('Failed to delete score');
+  return res.json();
+}
+
+async function refreshAndRender() {
+  const empty = document.getElementById('empty-state');
+  empty.textContent = 'Loading…';
+  empty.hidden = false;
+  document.querySelector('#leaderboard-table tbody').innerHTML = '';
+
+  try {
+    scores = await apiFetchScores();
+  } catch (err) {
+    console.error(err);
+    empty.textContent = 'Failed to load scores. Please refresh.';
+    return;
+  }
+  renderLeaderboard();
+}
 
 // ---------------------------------------------------------------------------
 // Theme management
@@ -27,12 +79,10 @@ function applyTheme(theme) {
   if (saved === "light" || saved === "dark") {
     applyTheme(saved);
   } else {
-    // No manual preference — still sync the toggle icon to the system theme
     const sys = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
     const toggle = document.getElementById("theme-toggle");
     toggle.textContent = sys === "light" ? "☾" : "☀";
     toggle.setAttribute("aria-label", sys === "light" ? "Switch to dark mode" : "Switch to light mode");
-    // Don't set data-theme so the CSS media query drives the variables
   }
 })();
 
@@ -42,7 +92,6 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
   localStorage.setItem("theme", next);
 });
 
-// Re-sync logo if system preference changes without a manual override
 window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (e) => {
   if (!localStorage.getItem("theme")) {
     const sys = e.matches ? "light" : "dark";
@@ -59,14 +108,6 @@ const AGE_GROUP_LABELS = [
 ];
 
 let currentView = "overall"; // "overall" | "age-group"
-
-function loadScores() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-}
-
-function saveScores(scores) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
-}
 
 // ---------------------------------------------------------------------------
 // SAF ranks (SSOT)
@@ -90,6 +131,13 @@ function mmssToSecs(str) {
   return m ? parseInt(m[1], 10) * 60 + parseInt(m[2], 10) : NaN;
 }
 
+function formatDate(isoStr) {
+  if (!isoStr) return '';
+  return new Date(isoStr).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Slider ↔ text input — bidirectional sync
 // ---------------------------------------------------------------------------
@@ -100,7 +148,6 @@ function setSliderFill(slider) {
   slider.style.setProperty("--fill", `${pct}%`);
 }
 
-// Numeric inputs (age / pushups / situps)
 function bindNumericSlider(sliderId, displayId) {
   const slider  = document.getElementById(sliderId);
   const display = document.getElementById(displayId);
@@ -117,15 +164,12 @@ function bindNumericSlider(sliderId, displayId) {
     setSliderFill(slider);
   };
 
-  // Snap display to clamped slider value on blur
   display.addEventListener("blur", () => { display.value = slider.value; });
-
   slider.addEventListener("input", fromSlider);
   display.addEventListener("input", fromDisplay);
   fromSlider();
 }
 
-// Run-time input (text MM:SS)
 function bindRunSlider(sliderId, displayId) {
   const slider  = document.getElementById(sliderId);
   const display = document.getElementById(displayId);
@@ -140,7 +184,7 @@ function bindRunSlider(sliderId, displayId) {
     if (isNaN(secs)) return;
     slider.value = Math.max(Number(slider.min), Math.min(Number(slider.max), secs));
     setSliderFill(slider);
-    display.value = secsToMMSS(slider.value); // normalise (e.g. 9:5 → 9:05)
+    display.value = secsToMMSS(slider.value);
   };
 
   slider.addEventListener("input", fromSlider);
@@ -154,7 +198,6 @@ bindNumericSlider("pushups-slider", "pushups-display");
 bindNumericSlider("situps-slider",  "situps-display");
 bindRunSlider    ("run-slider",     "run-display");
 
-// Reset: restore displays and clear errors
 document.getElementById("score-form").addEventListener("reset", () => {
   setTimeout(() => {
     bindNumericSlider("age-slider",     "age-display");
@@ -194,6 +237,7 @@ function buildRow(s, rank) {
       <td>${s.situps} <span class="pts">(${s.suPts})</span></td>
       <td>${s.run} <span class="pts">(${s.runPts})</span></td>
       <td>${s.gender === "F" ? "F" : "M"} / ${s.age}</td>
+      <td class="date-col">${formatDate(s.createdAt)}</td>
       <td><button class="btn-delete" data-id="${s.id}" title="Remove">&#x2715;</button></td>
     </tr>`;
 }
@@ -215,7 +259,6 @@ function polarToXY(cx, cy, r, angleDeg) {
 
 function pieSlicePath(cx, cy, r, startAngle, endAngle) {
   if (Math.abs(endAngle - startAngle) >= 359.999) {
-    // Full circle — use two arcs
     return `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx - 0.001} ${cy - r} Z`;
   }
   const s = polarToXY(cx, cy, r, startAngle);
@@ -225,7 +268,6 @@ function pieSlicePath(cx, cy, r, startAngle, endAngle) {
 }
 
 function renderAwardChart() {
-  const scores = loadScores();
   const counts = { Gold: 0, Silver: 0, Pass: 0, Fail: 0 };
   for (const s of scores) {
     if (counts[s.award] !== undefined) counts[s.award]++;
@@ -266,10 +308,7 @@ function renderAwardChart() {
     startAngle = endAngle;
   }
 
-  // Donut hole
   paths += `<circle class="chart-hole" cx="${cx}" cy="${cy}" r="38" />`;
-
-  // Centre total label
   paths += `<text class="chart-label-sm" x="${cx}" y="${cy - 5}" text-anchor="middle"
       font-size="11" font-family="Outfit,sans-serif">Total</text>
     <text class="chart-label-lg" x="${cx}" y="${cy + 13}" text-anchor="middle"
@@ -283,14 +322,14 @@ function renderAwardChart() {
 // Render leaderboard
 // ---------------------------------------------------------------------------
 function renderLeaderboard() {
-  const allScores = loadScores();
-  const tbody     = document.querySelector("#leaderboard-table tbody");
-  const empty     = document.getElementById("empty-state");
+  const tbody = document.querySelector("#leaderboard-table tbody");
+  const empty = document.getElementById("empty-state");
 
   renderAwardChart();
 
-  if (allScores.length === 0) {
+  if (scores.length === 0) {
     tbody.innerHTML = "";
+    empty.textContent = "No scores yet. Add the first entry above.";
     empty.hidden = false;
     return;
   }
@@ -298,14 +337,14 @@ function renderLeaderboard() {
   empty.hidden = true;
 
   if (currentView === "overall") {
-    const sorted = [...allScores].sort((a, b) => b.total - a.total);
+    const sorted = [...scores].sort((a, b) => b.total - a.total);
     tbody.innerHTML = sorted.map((s, i) => buildRow(s, i)).join("");
     return;
   }
 
   // --- By Age Group ---
   const groups = {};
-  for (const s of allScores) {
+  for (const s of scores) {
     const ag = getAgeGroup(s.age);
     if (!groups[ag]) groups[ag] = [];
     groups[ag].push(s);
@@ -318,7 +357,7 @@ function renderLeaderboard() {
       const members = [...groups[ag]].sort((a, b) => b.total - a.total);
       const groupHeader = `
         <tr class="group-header">
-          <td colspan="9">${AGE_GROUP_LABELS[ag]}</td>
+          <td colspan="10">${AGE_GROUP_LABELS[ag]}</td>
         </tr>`;
       return groupHeader + members.map((s, i) => buildRow(s, i)).join("");
     })
@@ -358,13 +397,12 @@ document.querySelector(".page-nav").addEventListener("click", (e) => {
 // ---------------------------------------------------------------------------
 // Form submission
 // ---------------------------------------------------------------------------
-document.getElementById("score-form").addEventListener("submit", (e) => {
+document.getElementById("score-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const fd   = new FormData(e.target);
   const rank = fd.get("rank").trim().toUpperCase();
   const name = fd.get("name").trim();
 
-  // Validate rank
   const rankErr = document.getElementById("rank-error");
   if (!SAF_RANKS.includes(rank)) {
     rankErr.textContent = "Please select a valid SAF rank.";
@@ -373,7 +411,6 @@ document.getElementById("score-form").addEventListener("submit", (e) => {
   }
   rankErr.textContent = "";
 
-  // Validate name — letters, spaces, hyphens, apostrophes only
   const nameErr = document.getElementById("name-error");
   if (!/^[A-Za-z\s'\-]+$/.test(name)) {
     nameErr.textContent = "Name must contain letters only (no numbers).";
@@ -391,49 +428,61 @@ document.getElementById("score-form").addEventListener("submit", (e) => {
   const { puPts, suPts, runPts, total } = computeScore(gender, age, pushups, situps, runSecs);
 
   const entry = {
-    id: Date.now(),
-    rank,
-    name,
-    gender,
-    age,
-    pushups,
-    situps,
-    run: runStr,
-    puPts,
-    suPts,
-    runPts,
-    total,
+    rank, name, gender, age, pushups, situps,
+    run: runStr, puPts, suPts, runPts, total,
     award: getAward(total),
   };
 
-  const scores = loadScores();
-  scores.push(entry);
-  saveScores(scores);
-  renderLeaderboard();
-  e.target.reset();
+  const btn = e.target.querySelector('.btn-primary');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
 
-  // Switch to leaderboard page after submitting
-  document.querySelectorAll(".nav-btn").forEach((b) =>
-    b.classList.toggle("active", b.dataset.page === "leaderboard")
-  );
-  document.querySelectorAll(".page").forEach((p) =>
-    p.classList.toggle("hidden", p.id !== "leaderboard-page")
-  );
+  try {
+    await apiAddScore(entry);
+    await refreshAndRender();
+    e.target.reset();
+    // Switch to leaderboard page
+    document.querySelectorAll(".nav-btn").forEach((b) =>
+      b.classList.toggle("active", b.dataset.page === "leaderboard")
+    );
+    document.querySelectorAll(".page").forEach((p) =>
+      p.classList.toggle("hidden", p.id !== "leaderboard-page")
+    );
+  } catch (err) {
+    console.error(err);
+    alert('Failed to save score. Please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Add to Leaderboard';
+  }
 });
 
 // ---------------------------------------------------------------------------
-// Delete row
+// Delete row (admin-gated)
 // ---------------------------------------------------------------------------
-document.querySelector("#leaderboard-table tbody").addEventListener("click", (e) => {
+document.querySelector("#leaderboard-table tbody").addEventListener("click", async (e) => {
   if (!e.target.matches(".btn-delete")) return;
   const id    = Number(e.target.dataset.id);
-  const entry = loadScores().find((s) => s.id === id);
+  const entry = scores.find((s) => s.id === id);
   if (!entry) return;
   const label = entry.rank ? `${entry.rank} ${entry.name}` : entry.name;
   if (!confirm(`Remove ${label} from the leaderboard?`)) return;
-  saveScores(loadScores().filter((s) => s.id !== id));
-  renderLeaderboard();
+
+  const password = prompt('Enter admin password:');
+  if (password === null) return; // cancelled
+
+  try {
+    await apiDeleteScore(id, password);
+    await refreshAndRender();
+  } catch (err) {
+    if (err.status === 401) {
+      alert('Incorrect admin password.');
+    } else {
+      console.error(err);
+      alert('Failed to delete entry. Please try again.');
+    }
+  }
 });
 
-// Initial render
-renderLeaderboard();
+// Initial load
+refreshAndRender();
