@@ -111,6 +111,14 @@
   color: var(--muted);
 }
 
+.calc-hint {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
+  line-height: 1.3;
+  min-height: 0.9rem;
+}
+
 /* ── Award target rows ───────────────────────────────────── */
 .calc-targets-label {
   font-size: 0.75rem;

@@ -53,6 +53,23 @@
     document.getElementById('calc-su-pts').textContent  = suPts  + ' pts';
     document.getElementById('calc-run-pts').textContent = runPts + ' pts';
 
+    // Next-point hints
+    const ag    = getAgeGroup(age);
+    const table = gender === 'F'
+      ? { reps: FEMALE_REPS, run: FEMALE_RUN }
+      : { reps: MALE_REPS,   run: MALE_RUN   };
+
+    const puNext  = repsToNextPoint(pushups, ag, table.reps);
+    const suNext  = repsToNextPoint(situps,  ag, table.reps);
+    const runNext = secsToNextRunPoint(runSecs, ag, table.run);
+
+    document.getElementById('calc-hint-pu').textContent  =
+      puNext  != null ? `+${puNext} rep${puNext === 1 ? '' : 's'} for next pt`  : 'Max pts';
+    document.getElementById('calc-hint-su').textContent  =
+      suNext  != null ? `+${suNext} rep${suNext === 1 ? '' : 's'} for next pt`  : 'Max pts';
+    document.getElementById('calc-hint-run').textContent =
+      runNext != null ? `Cut ${secsToMMSS(runNext)} for next pt` : 'Max pts';
+
     // Award target rows
     for (const t of TARGETS) {
       const pct    = Math.min(total / t.threshold, 1) * 100;

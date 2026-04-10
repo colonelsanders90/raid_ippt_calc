@@ -21,6 +21,28 @@ function getRunPoints(runSeconds, ageGroup, table) {
   return 0;
 }
 
+// Returns how many more reps are needed to gain 1 point, or null if already max.
+function repsToNextPoint(reps, ageGroup, table) {
+  const current = getRepsPoints(reps, ageGroup, table);
+  if (current >= 25) return null;
+  for (let r = reps + 1; r < table.length; r++) {
+    if (table[r][ageGroup] > current) return r - reps;
+  }
+  return null;
+}
+
+// Returns how many seconds to cut to gain 1 point, or null if already max.
+// Scans the run table from slowest-to-fastest to find the nearest faster threshold.
+function secsToNextRunPoint(runSeconds, ageGroup, table) {
+  const current = getRunPoints(runSeconds, ageGroup, table);
+  if (current >= 50) return null;
+  for (let i = table.length - 1; i >= 0; i--) {
+    const [t, pts] = table[i];
+    if (t < runSeconds && pts[ageGroup] > current) return runSeconds - t;
+  }
+  return null;
+}
+
 function getAward(total) {
   if (total >= 85) return "Gold";
   if (total >= 75) return "Silver";
