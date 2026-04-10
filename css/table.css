@@ -14,6 +14,7 @@ thead th {
   letter-spacing: 0.08em;
   color: var(--muted);
   border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 tbody tr {
@@ -153,8 +154,9 @@ tr.group-row-hidden { display: none; }
   text-transform: uppercase;
 }
 
-/* ── Sub-score annotation ────────────────────────────────── */
+/* ── Sub-score annotation — always on its own line ───────── */
 .pts {
+  display: block;
   font-size: 0.75rem;
   color: var(--muted);
 }
