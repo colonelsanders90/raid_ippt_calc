@@ -110,11 +110,24 @@
   bindNumericSlider('calc-situps-slider',  'calc-situps-display');
   bindRunSlider    ('calc-run-slider',     'calc-run-display');
 
-  ['calc-gender', 'calc-age-slider', 'calc-pushups-slider',
+  // Sliders — fire on drag
+  ['calc-age-slider', 'calc-pushups-slider',
    'calc-situps-slider', 'calc-run-slider'].forEach(id => {
     document.getElementById(id).addEventListener('input', updateCalcResults);
   });
+
+  // Gender select
   document.getElementById('calc-gender').addEventListener('change', updateCalcResults);
+
+  // Display inputs — fire when the user types; run also needs change/blur
+  // because bindRunSlider only commits on those events
+  ['calc-age-display', 'calc-pushups-display', 'calc-situps-display'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateCalcResults);
+  });
+  const runDisplay = document.getElementById('calc-run-display');
+  runDisplay.addEventListener('input',  updateCalcResults);
+  runDisplay.addEventListener('change', updateCalcResults);
+  runDisplay.addEventListener('blur',   updateCalcResults);
 
   updateCalcResults();
 })();
