@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------
 // Calculator tab — live score estimation, no data stored
-// Relies on computeScore() and getAward() from scoring-tables.js,
-// and on bindNumericSlider / bindRunSlider from leaderboard.js.
+// Depends on: scoring.js, sliders.js
 // ---------------------------------------------------------------------------
 
 (function () {

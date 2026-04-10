@@ -1,5 +1,6 @@
 /**
- * IPPT Scoring Tables (SAF, updated 2015 format)
+ * IPPT Scoring Tables (SAF, updated 2015 format) — raw data only.
+ * Scoring logic lives in js/scoring.js.
  *
  * Age groups (0–13):
  *   0 = <22,  1 = 22–24, 2 = 25–27, 3 = 28–30,
@@ -9,12 +10,6 @@
  *
  * Awards: Gold ≥ 85 | Silver ≥ 75 | Pass ≥ 51 | Fail < 51
  */
-
-function getAgeGroup(age) {
-  if (age < 22) return 0;
-  if (age > 60) return 13;
-  return Math.floor((age - 22) / 3) + 1;
-}
 
 // ---------------------------------------------------------------------------
 // MALE — reps table (push-ups AND sit-ups share the same matrix)
@@ -331,34 +326,3 @@ const FEMALE_RUN = [
   [1780, [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13]], // 29:40
 ];
 
-// ---------------------------------------------------------------------------
-// Lookup helpers
-// ---------------------------------------------------------------------------
-function getRepsPoints(reps, ageGroup, table) {
-  const r = Math.max(0, Math.min(reps, table.length - 1));
-  return table[r][ageGroup];
-}
-
-function getRunPoints(runSeconds, ageGroup, table) {
-  for (const [t, pts] of table) {
-    if (t >= runSeconds) return pts[ageGroup];
-  }
-  return 0;
-}
-
-function getAward(total) {
-  if (total >= 85) return "Gold";
-  if (total >= 75) return "Silver";
-  if (total >= 51) return "Pass";
-  return "Fail";
-}
-
-function computeScore(gender, age, pushups, situps, runSeconds) {
-  const ag    = getAgeGroup(age);
-  const table = gender === "F" ? { reps: FEMALE_REPS, run: FEMALE_RUN }
-                               : { reps: MALE_REPS,   run: MALE_RUN   };
-  const puPts  = getRepsPoints(pushups, ag, table.reps);
-  const suPts  = getRepsPoints(situps,  ag, table.reps);
-  const runPts = getRunPoints(runSeconds, ag, table.run);
-  return { puPts, suPts, runPts, total: puPts + suPts + runPts };
-}
