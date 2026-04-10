@@ -2,28 +2,29 @@ import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.POSTGRES_URL);
 
-const CORRECT_SCHEMA = `
-  CREATE TABLE scores (
-    id         SERIAL PRIMARY KEY,
-    rank       VARCHAR(10)  NOT NULL,
-    name       VARCHAR(100) NOT NULL,
-    branch     VARCHAR(30)  DEFAULT 'HQ RAiD',
-    gender     CHAR(1)      NOT NULL,
-    age        INTEGER      NOT NULL,
-    pushups    INTEGER      NOT NULL,
-    situps     INTEGER      NOT NULL,
-    run        VARCHAR(10)  NOT NULL,
-    pu_pts     INTEGER      NOT NULL,
-    su_pts     INTEGER      NOT NULL,
-    run_pts    INTEGER      NOT NULL,
-    total      INTEGER      NOT NULL,
-    award      VARCHAR(10)  NOT NULL,
-    created_at TIMESTAMPTZ  DEFAULT NOW()
-  )`;
+async function createTable() {
+  await sql`
+    CREATE TABLE scores (
+      id         SERIAL PRIMARY KEY,
+      rank       VARCHAR(10)  NOT NULL,
+      name       VARCHAR(100) NOT NULL,
+      branch     VARCHAR(30)  DEFAULT 'HQ RAiD',
+      gender     CHAR(1)      NOT NULL,
+      age        INTEGER      NOT NULL,
+      pushups    INTEGER      NOT NULL,
+      situps     INTEGER      NOT NULL,
+      run        VARCHAR(10)  NOT NULL,
+      pu_pts     INTEGER      NOT NULL,
+      su_pts     INTEGER      NOT NULL,
+      run_pts    INTEGER      NOT NULL,
+      total      INTEGER      NOT NULL,
+      award      VARCHAR(10)  NOT NULL,
+      created_at TIMESTAMPTZ  DEFAULT NOW()
+    )
+  `;
+}
 
 async function ensureTable() {
-  // Check whether the table exists and whether branch is positioned correctly
-  // (after name, before gender — i.e. ordinal_position < gender's position).
   const cols = await sql`
     SELECT column_name, ordinal_position
     FROM   information_schema.columns
@@ -32,25 +33,22 @@ async function ensureTable() {
   `;
 
   if (cols.length === 0) {
-    // Table doesn't exist yet — create it with the correct schema.
-    await sql.unsafe(CORRECT_SCHEMA);
+    await createTable();
     return;
   }
 
   const pos = Object.fromEntries(cols.map(c => [c.column_name, c.ordinal_position]));
   const needsFix = !pos.branch || pos.branch > pos.gender;
+  if (!needsFix) return;
 
-  if (!needsFix) return; // Schema is already correct.
-
-  // Branch is missing or in the wrong position.
-  // If the table is empty it is safe to drop and recreate.
+  // branch is missing or comes after gender — fix it.
   const [{ n }] = await sql`SELECT COUNT(*) AS n FROM scores`;
   if (parseInt(n) === 0) {
+    // Safe to drop and recreate with correct column order.
     await sql`DROP TABLE scores`;
-    await sql.unsafe(CORRECT_SCHEMA);
+    await createTable();
   } else {
-    // Table has data — fall back to ALTER so we don't lose rows.
-    // Column order will be wrong visually, but all queries use column names.
+    // Has data — can't reorder, just add the column if missing.
     await sql`ALTER TABLE scores ADD COLUMN IF NOT EXISTS branch VARCHAR(30) DEFAULT 'HQ RAiD'`;
   }
 }
