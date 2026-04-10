@@ -23,6 +23,7 @@
 
   <nav class="page-nav" role="navigation" aria-label="Main navigation">
     <button class="nav-btn active" data-page="leaderboard">Leaderboard</button>
+    <button class="nav-btn" data-page="calculator">Calculator</button>
     <button class="nav-btn" data-page="submit">Submit Score</button>
   </nav>
 
@@ -71,6 +72,116 @@
             </thead>
             <tbody></tbody>
           </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ── Calculator page ──────────────────────────────── -->
+    <div id="calculator-page" class="page hidden">
+
+      <section class="card">
+        <h2>Inputs</h2>
+        <div class="calc-top">
+          <label>
+            Gender
+            <select id="calc-gender">
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-sliders">
+
+          <div class="scroller-field">
+            <span class="field-label">Age</span>
+            <input class="scroller-val" type="number" id="calc-age-display"
+                   value="30" min="16" max="70" inputmode="numeric" />
+            <input type="range" id="calc-age-slider"
+                   min="16" max="70" value="30" step="1" />
+            <div class="scroller-ends"><span>16</span><span>70</span></div>
+          </div>
+
+          <div class="scroller-field">
+            <span class="field-label">Push-ups</span>
+            <input class="scroller-val" type="number" id="calc-pushups-display"
+                   value="30" min="0" max="60" inputmode="numeric" />
+            <input type="range" id="calc-pushups-slider"
+                   min="0" max="60" value="30" step="1" />
+            <div class="scroller-ends"><span>0</span><span>60</span></div>
+          </div>
+
+          <div class="scroller-field">
+            <span class="field-label">Sit-ups</span>
+            <input class="scroller-val" type="number" id="calc-situps-display"
+                   value="30" min="0" max="60" inputmode="numeric" />
+            <input type="range" id="calc-situps-slider"
+                   min="0" max="60" value="30" step="1" />
+            <div class="scroller-ends"><span>0</span><span>60</span></div>
+          </div>
+
+          <div class="scroller-field">
+            <span class="field-label">2.4km Run</span>
+            <input class="scroller-val" type="text" id="calc-run-display"
+                   value="12:00" placeholder="MM:SS" inputmode="numeric" />
+            <input type="range" id="calc-run-slider"
+                   min="480" max="1800" value="720" step="10" />
+            <div class="scroller-ends"><span>8:00</span><span>30:00</span></div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Your Score</h2>
+        <div class="calc-results">
+          <div class="calc-score-block">
+            <div class="calc-total-num" id="calc-total">—</div>
+            <div class="calc-total-sub">out of 100</div>
+            <span class="badge fail" id="calc-award-badge">Fail</span>
+          </div>
+          <div class="calc-stations">
+            <div class="calc-station">
+              <div class="calc-station-val" id="calc-pu-pts">—</div>
+              <div class="calc-station-label">Push-ups</div>
+            </div>
+            <div class="calc-station">
+              <div class="calc-station-val" id="calc-su-pts">—</div>
+              <div class="calc-station-label">Sit-ups</div>
+            </div>
+            <div class="calc-station">
+              <div class="calc-station-val" id="calc-run-pts">—</div>
+              <div class="calc-station-label">2.4km Run</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-targets">
+          <div class="calc-targets-label">Award Targets</div>
+          <div class="calc-target-row">
+            <span class="badge gold">Gold</span>
+            <span class="calc-threshold">85</span>
+            <div class="calc-bar-track">
+              <div class="calc-bar-fill calc-bar-gold" id="calc-bar-gold"></div>
+            </div>
+            <span class="calc-status" id="calc-status-gold"></span>
+          </div>
+          <div class="calc-target-row">
+            <span class="badge silver">Silver</span>
+            <span class="calc-threshold">75</span>
+            <div class="calc-bar-track">
+              <div class="calc-bar-fill calc-bar-silver" id="calc-bar-silver"></div>
+            </div>
+            <span class="calc-status" id="calc-status-silver"></span>
+          </div>
+          <div class="calc-target-row">
+            <span class="badge pass">Pass</span>
+            <span class="calc-threshold">51</span>
+            <div class="calc-bar-track">
+              <div class="calc-bar-fill calc-bar-pass" id="calc-bar-pass"></div>
+            </div>
+            <span class="calc-status" id="calc-status-pass"></span>
+          </div>
         </div>
       </section>
 
@@ -173,5 +284,6 @@
 
   <script src="data/scoring-tables.js"></script>
   <script src="js/leaderboard.js"></script>
+  <script src="js/calculator.js"></script>
 </body>
 </html>
