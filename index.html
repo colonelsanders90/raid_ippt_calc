@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAiD IPPT Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <header>
+    <div class="header-brand">
+      <img id="header-logo" src="assets/images/White RAiD (Reg).svg" alt="RAiD" class="header-logo" />
+      <h1>IPPT Leaderboard</h1>
+    </div>
+    <div class="header-actions">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle colour theme">☀</button>
+    </div>
+  </header>
+
+  <nav class="page-nav" role="navigation" aria-label="Main navigation">
+    <button class="nav-btn active" data-page="leaderboard">Leaderboard</button>
+    <button class="nav-btn" data-page="submit">Submit Score</button>
+  </nav>
+
+  <main>
+
+    <!-- ── Leaderboard page ──────────────────────────────── -->
+    <div id="leaderboard-page" class="page">
+
+      <!-- Award distribution chart -->
+      <section class="card" id="awards-section">
+        <h2>Award Distribution</h2>
+        <div class="chart-wrap">
+          <div class="chart-svg-wrap">
+            <svg id="awards-chart" viewBox="0 0 200 200" width="160" height="160"
+                 aria-label="Award distribution pie chart"></svg>
+          </div>
+          <div id="chart-legend" class="chart-legend"></div>
+        </div>
+      </section>
+
+      <!-- Rankings -->
+      <section class="card">
+        <div class="rankings-header">
+          <h2>Rankings</h2>
+          <div class="view-toggle" role="group" aria-label="View mode">
+            <button class="toggle-btn active" data-view="overall">Overall</button>
+            <button class="toggle-btn" data-view="age-group">By Age Group</button>
+          </div>
+        </div>
+        <p id="empty-state" hidden>No scores yet. Add the first entry above.</p>
+        <div class="table-wrap">
+          <table id="leaderboard-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Rank / Name</th>
+                <th>Total</th>
+                <th>Award</th>
+                <th>Push-ups</th>
+                <th>Sit-ups</th>
+                <th>2.4km</th>
+                <th>Gender / Age</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ── Submit Score page ─────────────────────────────── -->
+    <div id="submit-page" class="page hidden">
+      <section class="card" id="add-section">
+        <h2>Add Score</h2>
+        <form id="score-form" autocomplete="off">
+
+          <!-- Row 1: identity fields -->
+          <div class="form-top">
+            <label class="field-rank">
+              Rank
+              <input id="rank" name="rank" type="text" list="rank-options"
+                     placeholder="e.g. LTC" autocomplete="off" spellcheck="false" required />
+              <span class="field-error" id="rank-error"></span>
+            </label>
+            <label class="field-name">
+              Name
+              <input id="name" name="name" type="text"
+                     placeholder="e.g. Cheot Yeechien" required />
+              <span class="field-error" id="name-error"></span>
+            </label>
+            <label>
+              Gender
+              <select name="gender" required>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Row 2: scrollers (slider + editable text input in sync) -->
+          <div class="form-sliders">
+
+            <div class="scroller-field">
+              <span class="field-label">Age</span>
+              <input class="scroller-val" type="number" id="age-display"
+                     value="30" min="16" max="70" inputmode="numeric" />
+              <input type="range" id="age-slider" name="age"
+                     min="16" max="70" value="30" step="1" />
+              <div class="scroller-ends"><span>16</span><span>70</span></div>
+            </div>
+
+            <div class="scroller-field">
+              <span class="field-label">Push-ups</span>
+              <input class="scroller-val" type="number" id="pushups-display"
+                     value="30" min="0" max="60" inputmode="numeric" />
+              <input type="range" id="pushups-slider" name="pushups"
+                     min="0" max="60" value="30" step="1" />
+              <div class="scroller-ends"><span>0</span><span>60</span></div>
+            </div>
+
+            <div class="scroller-field">
+              <span class="field-label">Sit-ups</span>
+              <input class="scroller-val" type="number" id="situps-display"
+                     value="30" min="0" max="60" inputmode="numeric" />
+              <input type="range" id="situps-slider" name="situps"
+                     min="0" max="60" value="30" step="1" />
+              <div class="scroller-ends"><span>0</span><span>60</span></div>
+            </div>
+
+            <div class="scroller-field">
+              <span class="field-label">2.4km Run</span>
+              <input class="scroller-val" type="text" id="run-display"
+                     value="12:00" placeholder="MM:SS" inputmode="numeric" />
+              <input type="range" id="run-slider"
+                     min="480" max="1800" value="720" step="10" />
+              <div class="scroller-ends"><span>8:00</span><span>30:00</span></div>
+            </div>
+
+          </div>
+
+          <button type="submit" class="btn-primary">Add to Leaderboard</button>
+
+          <!-- SAF rank autocomplete list -->
+          <datalist id="rank-options">
+            <option value="ME1T"><option value="ME1"><option value="ME2">
+            <option value="ME3"><option value="ME4T"><option value="ME4A">
+            <option value="ME4"><option value="ME5"><option value="ME6">
+            <option value="ME7"><option value="ME8">
+            <option value="REC"><option value="PTE"><option value="LCP">
+            <option value="CPL"><option value="CFC"><option value="SCT">
+            <option value="3SG"><option value="2SG"><option value="1SG">
+            <option value="SSG"><option value="MSG">
+            <option value="3WO"><option value="2WO"><option value="1WO">
+            <option value="MWO"><option value="SWO"><option value="CWO">
+            <option value="OCT">
+            <option value="2LT"><option value="LTA"><option value="CPT">
+            <option value="MAJ"><option value="LTC"><option value="SLTC">
+            <option value="COL"><option value="BG"><option value="MG">
+          </datalist>
+        </form>
+      </section>
+    </div>
+
+  </main>
+
+  <script src="data/scoring-tables.js"></script>
+  <script src="js/leaderboard.js"></script>
+</body>
+</html>
