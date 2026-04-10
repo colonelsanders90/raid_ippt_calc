@@ -202,7 +202,7 @@ function renderTable() {
       const medal = bi === 0 ? "🏆 " : bi === 1 ? "🥈 " : bi === 2 ? "🥉 " : "";
       const info  = `${golds > 0 ? ` &nbsp;·&nbsp; ${golds} Gold` : ""}`;
       const header = `${medal}<strong>${escHtml(branch)}</strong> &nbsp;·&nbsp; ${members.length} member${members.length !== 1 ? "s" : ""} &nbsp;·&nbsp; Avg ${avg}${info}`;
-      return `<tr class="group-header"><td colspan="11">${header}</td></tr>`
+      return `<tr class="group-header"><td colspan="11"><span class="group-chevron">▾</span>${header}</td></tr>`
         + [...members].sort((a, b) => b.total - a.total).map((s, i) => buildRow(s, i)).join("");
     }).join("");
     return;
@@ -220,7 +220,7 @@ function renderTable() {
     .map(Number).sort((a, b) => a - b)
     .map((ag) => {
       const members = [...groups[ag]].sort((a, b) => b.total - a.total);
-      return `<tr class="group-header"><td colspan="11">${AGE_GROUP_LABELS[ag]}</td></tr>`
+      return `<tr class="group-header"><td colspan="11"><span class="group-chevron">▾</span>${AGE_GROUP_LABELS[ag]}</td></tr>`
         + members.map((s, i) => buildRow(s, i)).join("");
     }).join("");
 }
@@ -332,6 +332,21 @@ document.getElementById("score-form").addEventListener("submit", async (e) => {
   } finally {
     btn.disabled    = false;
     btn.textContent = 'Add to Leaderboard';
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Collapse / expand group header rows
+// ---------------------------------------------------------------------------
+document.querySelector("#leaderboard-table tbody").addEventListener("click", (e) => {
+  const header = e.target.closest("tr.group-header");
+  if (!header) return;
+  header.classList.toggle("collapsed");
+  const isCollapsed = header.classList.contains("collapsed");
+  let row = header.nextElementSibling;
+  while (row && !row.classList.contains("group-header")) {
+    row.classList.toggle("group-row-hidden", isCollapsed);
+    row = row.nextElementSibling;
   }
 });
 

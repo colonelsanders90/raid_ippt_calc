@@ -31,7 +31,7 @@ td {
 
 .rank { font-size: 1.1rem; }
 
-/* ── Age group separator row ─────────────────────────────── */
+/* ── Group separator row (collapsible) ───────────────────── */
 tr.group-header td {
   padding: 0.5rem 1rem;
   font-size: 0.72rem;
@@ -41,7 +41,25 @@ tr.group-header td {
   color: var(--blue);
   background: var(--black);
   border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
 }
+
+tr.group-header:hover td { background: var(--hover-bg); }
+
+.group-chevron {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.18s ease;
+}
+
+tr.group-header.collapsed .group-chevron {
+  transform: rotate(-90deg);
+}
+
+tr.group-row-hidden { display: none; }
 
 /* ── Award badges ────────────────────────────────────────── */
 .badge {
