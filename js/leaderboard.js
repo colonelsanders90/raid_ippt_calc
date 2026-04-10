@@ -27,9 +27,11 @@ const SAF_RANKS = [
 // ---------------------------------------------------------------------------
 function formatDate(isoStr) {
   if (!isoStr) return '';
-  return new Date(isoStr).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric',
-  });
+  const d = new Date(isoStr);
+  const dd   = String(d.getDate()).padStart(2, '0');
+  const mm   = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
 }
 
 function escHtml(str) {
