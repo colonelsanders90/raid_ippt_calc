@@ -3,7 +3,7 @@
 // Depends on: scoring.js, sliders.js, api.js
 // ---------------------------------------------------------------------------
 
-let scores = [];
+let scores      = [];
 let currentView = "overall";
 
 const AGE_GROUP_LABELS = [
@@ -36,6 +36,36 @@ function escHtml(str) {
   return str.replace(/[&<>"']/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
   );
+}
+
+function navigateTo(page) {
+  document.querySelectorAll(".nav-btn").forEach((b) =>
+    b.classList.toggle("active", b.dataset.page === page)
+  );
+  document.querySelectorAll(".page").forEach((p) =>
+    p.classList.toggle("hidden", p.id !== `${page}-page`)
+  );
+}
+
+// Returns { valid: bool, rankError: string, nameError: string }
+function validateForm(rank, name) {
+  if (!SAF_RANKS.includes(rank)) {
+    return { valid: false, rankError: "Please select a valid SAF rank.", nameError: "" };
+  }
+  if (!/^[A-Za-z\s'\-]+$/.test(name)) {
+    return { valid: false, rankError: "", nameError: "Name must contain letters only (no numbers)." };
+  }
+  return { valid: true, rankError: "", nameError: "" };
+}
+
+// Reads slider/form values and returns a complete entry object (no API call)
+function buildEntry(rank, name, gender, age, pushups, situps, runSecs) {
+  const { puPts, suPts, runPts, total } = computeScore(gender, age, pushups, situps, runSecs);
+  return {
+    rank, name, gender, age, pushups, situps,
+    run: secsToMMSS(runSecs), puPts, suPts, runPts, total,
+    award: getAward(total),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -80,8 +110,8 @@ function pieSlicePath(cx, cy, r, startAngle, endAngle) {
   if (Math.abs(endAngle - startAngle) >= 359.999) {
     return `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx - 0.001} ${cy - r} Z`;
   }
-  const s    = polarToXY(cx, cy, r, startAngle);
-  const e    = polarToXY(cx, cy, r, endAngle);
+  const s     = polarToXY(cx, cy, r, startAngle);
+  const e     = polarToXY(cx, cy, r, endAngle);
   const large = endAngle - startAngle > 180 ? 1 : 0;
   return `M ${cx} ${cy} L ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y} Z`;
 }
@@ -131,18 +161,16 @@ function renderAwardChart() {
 }
 
 // ---------------------------------------------------------------------------
-// Render leaderboard table
+// Render leaderboard table (table only — chart is a separate concern)
 // ---------------------------------------------------------------------------
-function renderLeaderboard() {
+function renderTable() {
   const tbody = document.querySelector("#leaderboard-table tbody");
   const empty = document.getElementById("empty-state");
 
-  renderAwardChart();
-
   if (scores.length === 0) {
-    tbody.innerHTML  = "";
+    tbody.innerHTML   = "";
     empty.textContent = "No scores yet. Add the first entry above.";
-    empty.hidden     = false;
+    empty.hidden      = false;
     return;
   }
 
@@ -171,13 +199,19 @@ function renderLeaderboard() {
     }).join("");
 }
 
+// Renders both chart and table — the single entry point for a full UI refresh
+function render() {
+  renderAwardChart();
+  renderTable();
+}
+
 // ---------------------------------------------------------------------------
-// Load scores from API and re-render
+// Load scores from API then re-render
 // ---------------------------------------------------------------------------
 async function refreshAndRender() {
   const empty = document.getElementById('empty-state');
   empty.textContent = 'Loading…';
-  empty.hidden = false;
+  empty.hidden      = false;
   document.querySelector('#leaderboard-table tbody').innerHTML = '';
 
   try {
@@ -187,7 +221,7 @@ async function refreshAndRender() {
     empty.textContent = 'Failed to load scores. Please refresh.';
     return;
   }
-  renderLeaderboard();
+  render();
 }
 
 // ---------------------------------------------------------------------------
@@ -216,13 +250,7 @@ document.getElementById("score-form").addEventListener("reset", () => {
 document.querySelector(".page-nav").addEventListener("click", (e) => {
   const btn = e.target.closest(".nav-btn");
   if (!btn) return;
-  const page = btn.dataset.page;
-  document.querySelectorAll(".nav-btn").forEach((b) =>
-    b.classList.toggle("active", b === btn)
-  );
-  document.querySelectorAll(".page").forEach((p) =>
-    p.classList.toggle("hidden", p.id !== `${page}-page`)
-  );
+  navigateTo(btn.dataset.page);
 });
 
 // ---------------------------------------------------------------------------
@@ -235,7 +263,7 @@ document.querySelector(".view-toggle").addEventListener("click", (e) => {
   document.querySelectorAll(".toggle-btn").forEach((b) =>
     b.classList.toggle("active", b === btn)
   );
-  renderLeaderboard();
+  renderTable();
 });
 
 // ---------------------------------------------------------------------------
@@ -247,34 +275,20 @@ document.getElementById("score-form").addEventListener("submit", async (e) => {
   const rank = fd.get("rank").trim().toUpperCase();
   const name = fd.get("name").trim();
 
-  const rankErr = document.getElementById("rank-error");
-  if (!SAF_RANKS.includes(rank)) {
-    rankErr.textContent = "Please select a valid SAF rank.";
-    document.getElementById("rank").focus();
+  const { valid, rankError, nameError } = validateForm(rank, name);
+  document.getElementById("rank-error").textContent = rankError;
+  document.getElementById("name-error").textContent = nameError;
+  if (!valid) {
+    (rankError ? document.getElementById("rank") : document.getElementById("name")).focus();
     return;
   }
-  rankErr.textContent = "";
-
-  const nameErr = document.getElementById("name-error");
-  if (!/^[A-Za-z\s'\-]+$/.test(name)) {
-    nameErr.textContent = "Name must contain letters only (no numbers).";
-    document.getElementById("name").focus();
-    return;
-  }
-  nameErr.textContent = "";
 
   const gender  = fd.get("gender");
-  const age     = parseInt(document.getElementById("age-slider").value, 10);
+  const age     = parseInt(document.getElementById("age-slider").value,    10);
   const pushups = parseInt(document.getElementById("pushups-slider").value, 10);
-  const situps  = parseInt(document.getElementById("situps-slider").value, 10);
-  const runSecs = parseInt(document.getElementById("run-slider").value, 10);
-  const { puPts, suPts, runPts, total } = computeScore(gender, age, pushups, situps, runSecs);
-
-  const entry = {
-    rank, name, gender, age, pushups, situps,
-    run: secsToMMSS(runSecs), puPts, suPts, runPts, total,
-    award: getAward(total),
-  };
+  const situps  = parseInt(document.getElementById("situps-slider").value,  10);
+  const runSecs = parseInt(document.getElementById("run-slider").value,     10);
+  const entry   = buildEntry(rank, name, gender, age, pushups, situps, runSecs);
 
   const btn = e.target.querySelector('.btn-primary');
   btn.disabled    = true;
@@ -284,12 +298,7 @@ document.getElementById("score-form").addEventListener("submit", async (e) => {
     await apiAddScore(entry);
     await refreshAndRender();
     e.target.reset();
-    document.querySelectorAll(".nav-btn").forEach((b) =>
-      b.classList.toggle("active", b.dataset.page === "leaderboard")
-    );
-    document.querySelectorAll(".page").forEach((p) =>
-      p.classList.toggle("hidden", p.id !== "leaderboard-page")
-    );
+    navigateTo("leaderboard");
   } catch (err) {
     console.error(err);
     alert('Failed to save score. Please try again.');
