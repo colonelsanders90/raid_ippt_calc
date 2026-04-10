@@ -124,7 +124,7 @@
 
 .calc-target-row {
   display: grid;
-  grid-template-columns: 5.5rem 2rem 1fr 4rem 6rem;
+  grid-template-columns: 5.5rem 2rem 1fr 6rem;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
@@ -154,17 +154,14 @@
 .calc-bar-silver { background: #c0c0c0; }
 .calc-bar-pass   { background: var(--blue); }
 
-.calc-incentive {
-  font-size: 0.78rem;
-  color: var(--muted);
-  white-space: nowrap;
-  text-align: right;
-  visibility: hidden; /* shown by JS when threshold is met */
+.calc-incentive-display {
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-height: 1.2em;
 }
 
-.calc-incentive.visible {
-  visibility: visible;
-}
+.calc-incentive-gold   { color: #ffd040; }
+.calc-incentive-silver { color: #d4d4d4; }
 
 .calc-status {
   font-size: 0.8rem;
@@ -190,5 +187,5 @@
   .calc-stations    { grid-template-columns: repeat(3, 1fr); width: 100%; }
   .calc-station     { padding: 0.65rem 0.5rem; }
   .calc-station-val { font-size: 1.1rem; }
-  .calc-target-row  { grid-template-columns: 5rem 1.5rem 1fr 3.5rem 5rem; gap: 0.4rem; }
+  .calc-target-row  { grid-template-columns: 5rem 1.5rem 1fr 5rem; gap: 0.4rem; }
 }
