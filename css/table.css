@@ -195,10 +195,16 @@ tr.group-row-hidden { display: none; }
   white-space: nowrap;
 }
 
+/* ── Rank/Name column — give it room to breathe ─────────── */
+#leaderboard-table th:nth-child(2),
+#leaderboard-table td:nth-child(2) {
+  min-width: 200px;
+}
+
 /* ── Mobile: show only #, Rank/Name, Total, Award, delete ── */
 @media (max-width: 640px) {
-  #leaderboard-table th:nth-child(n+5):nth-child(-n+10),
-  #leaderboard-table td:nth-child(n+5):nth-child(-n+10) {
+  #leaderboard-table th:nth-child(n+5):nth-child(-n+9),
+  #leaderboard-table td:nth-child(n+5):nth-child(-n+9) {
     display: none;
   }
 }

@@ -89,7 +89,6 @@ function buildRow(s, rank) {
       <td>${s.pushups} <span class="pts">(${s.puPts})</span></td>
       <td>${s.situps} <span class="pts">(${s.suPts})</span></td>
       <td>${s.run} <span class="pts">(${s.runPts})</span></td>
-      <td>${s.gender === "F" ? "F" : "M"} / ${s.age}</td>
       <td class="date-col">${formatDate(s.createdAt)}</td>
       <td><button class="btn-delete" data-id="${s.id}" title="Remove">&#x2715;</button></td>
     </tr>`;
@@ -202,7 +201,7 @@ function renderTable() {
       const medal = bi === 0 ? "🏆 " : bi === 1 ? "🥈 " : bi === 2 ? "🥉 " : "";
       const info  = `${golds > 0 ? ` &nbsp;·&nbsp; ${golds} Gold` : ""}`;
       const header = `${medal}<strong>${escHtml(branch)}</strong> &nbsp;·&nbsp; ${members.length} member${members.length !== 1 ? "s" : ""} &nbsp;·&nbsp; Avg ${avg}${info}`;
-      return `<tr class="group-header"><td colspan="11"><span class="group-chevron">▾</span>${header}</td></tr>`
+      return `<tr class="group-header"><td colspan="10"><span class="group-chevron">▾</span>${header}</td></tr>`
         + [...members].sort((a, b) => b.total - a.total).map((s, i) => buildRow(s, i)).join("");
     }).join("");
     return;
@@ -220,7 +219,7 @@ function renderTable() {
     .map(Number).sort((a, b) => a - b)
     .map((ag) => {
       const members = [...groups[ag]].sort((a, b) => b.total - a.total);
-      return `<tr class="group-header"><td colspan="11"><span class="group-chevron">▾</span>${AGE_GROUP_LABELS[ag]}</td></tr>`
+      return `<tr class="group-header"><td colspan="10"><span class="group-chevron">▾</span>${AGE_GROUP_LABELS[ag]}</td></tr>`
         + members.map((s, i) => buildRow(s, i)).join("");
     }).join("");
 }
