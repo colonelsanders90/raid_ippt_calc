@@ -80,6 +80,24 @@
     <!-- ── Calculator page ──────────────────────────────── -->
     <div id="calculator-page" class="page hidden">
 
+      <section class="card safety-card">
+        <div class="safety-header">
+          <span class="safety-icon">🛡️</span>
+          <h2>Before You Run</h2>
+        </div>
+        <ul class="safety-list">
+          <li>😴 Get <strong>7+ hours of sleep</strong> the night before</li>
+          <li>💧 <strong>Hydrate well</strong> — drink water at least 2 hours before</li>
+          <li>🍱 <strong>No heavy meals</strong> within 1 hour of the test</li>
+          <li>🫀 If you're <strong>35 or older</strong>, ensure you have a Low Cardiac Risk Outcome from the SAF Health Screening Programme</li>
+          <li>🏥 <strong>Do not attempt</strong> if you have a valid MC or are feeling unwell</li>
+          <li>📈 Train <strong>progressively</strong> — don't go all out on Day 1</li>
+        </ul>
+        <div class="safety-quote-wrap">
+          <p class="safety-quote" id="safety-quote"></p>
+        </div>
+      </section>
+
       <section class="card">
         <h2>Inputs</h2>
         <div class="calc-top">
@@ -164,6 +182,7 @@
             <div class="calc-bar-track">
               <div class="calc-bar-fill calc-bar-gold" id="calc-bar-gold"></div>
             </div>
+            <span class="calc-incentive">💰 $300</span>
             <span class="calc-status" id="calc-status-gold"></span>
           </div>
           <div class="calc-target-row">
@@ -172,6 +191,7 @@
             <div class="calc-bar-track">
               <div class="calc-bar-fill calc-bar-silver" id="calc-bar-silver"></div>
             </div>
+            <span class="calc-incentive">💰 $200</span>
             <span class="calc-status" id="calc-status-silver"></span>
           </div>
           <div class="calc-target-row">
@@ -180,6 +200,7 @@
             <div class="calc-bar-track">
               <div class="calc-bar-fill calc-bar-pass" id="calc-bar-pass"></div>
             </div>
+            <span class="calc-incentive"></span>
             <span class="calc-status" id="calc-status-pass"></span>
           </div>
         </div>

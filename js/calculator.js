@@ -5,11 +5,33 @@
 
 (function () {
   const TARGETS = [
-    { key: 'gold',   label: 'Gold',   threshold: 85 },
-    { key: 'silver', label: 'Silver', threshold: 75 },
-    { key: 'pass',   label: 'Pass',   threshold: 51 },
+    { key: 'gold',   threshold: 85 },
+    { key: 'silver', threshold: 75 },
+    { key: 'pass',   threshold: 51 },
   ];
 
+  // ---------------------------------------------------------------------------
+  // Safety encouragement quotes — rotated on each page visit
+  // ---------------------------------------------------------------------------
+  const QUOTES = [
+    "The pain of discipline weighs ounces. The pain of regret weighs tonnes. Train hard.",
+    "Your future self is watching you through your memories. Make them proud.",
+    "Gold doesn't happen overnight — but it starts today.",
+    "Every push-up is a vote for the soldier you want to become.",
+    "The only bad workout is the one that didn't happen.",
+    "Sweat now, shine on test day.",
+    "Run the day before the day runs you.",
+    "Progress is progress, no matter how small. Keep moving.",
+    "The body achieves what the mind believes. Believe in the gold.",
+    "Discipline is the bridge between goals and accomplishment.",
+  ];
+
+  const quoteEl = document.getElementById('safety-quote');
+  quoteEl.textContent = '\u201c' + QUOTES[Math.floor(Math.random() * QUOTES.length)] + '\u201d';
+
+  // ---------------------------------------------------------------------------
+  // Score calculation + UI update
+  // ---------------------------------------------------------------------------
   function updateCalcResults() {
     const gender  = document.getElementById('calc-gender').value;
     const age     = parseInt(document.getElementById('calc-age-slider').value, 10);
@@ -24,7 +46,7 @@
     document.getElementById('calc-total').textContent = total;
     const badge = document.getElementById('calc-award-badge');
     badge.textContent = award;
-    badge.className = 'badge ' + award.toLowerCase();
+    badge.className   = 'badge ' + award.toLowerCase();
 
     // Station breakdown
     document.getElementById('calc-pu-pts').textContent  = puPts  + ' pts';
@@ -45,24 +67,24 @@
         status.className   = 'calc-status calc-achieved';
       } else {
         status.textContent = away + ' pts away';
-        status.className   = 'calc-status';
+        status.className   = 'calc-status calc-away';
       }
     }
   }
 
-  // Bind sliders (reuses the globally-defined helpers from leaderboard.js)
+  // ---------------------------------------------------------------------------
+  // Bind sliders
+  // ---------------------------------------------------------------------------
   bindNumericSlider('calc-age-slider',     'calc-age-display');
   bindNumericSlider('calc-pushups-slider', 'calc-pushups-display');
   bindNumericSlider('calc-situps-slider',  'calc-situps-display');
   bindRunSlider    ('calc-run-slider',     'calc-run-display');
 
-  // Live update on any input change
   ['calc-gender', 'calc-age-slider', 'calc-pushups-slider',
    'calc-situps-slider', 'calc-run-slider'].forEach(id => {
     document.getElementById(id).addEventListener('input', updateCalcResults);
   });
   document.getElementById('calc-gender').addEventListener('change', updateCalcResults);
 
-  // Initial render
   updateCalcResults();
 })();
