@@ -9,7 +9,7 @@
 const fs = require("fs");
 const vm = require("vm");
 
-const tableSrc   = fs.readFileSync(__dirname + "/../data/scoring-tables.js", "utf8");
+const tableSrc   = fs.readFileSync(__dirname + "/../js/scoring-tables.js", "utf8");
 const scoringSrc = fs.readFileSync(__dirname + "/../js/scoring.js", "utf8");
 
 // Concatenate both into one IIFE so scoring.js can reference table globals
@@ -17,7 +17,7 @@ const wrapped = `(function() {
   ${tableSrc}
   ${scoringSrc}
   return { getAgeGroup, getRepsPoints, getRunPoints, getAward, computeScore,
-           MALE_REPS, MALE_RUN, FEMALE_REPS, FEMALE_RUN };
+           MALE_REPS, MALE_RUN };
 })()`;
 
 const {
@@ -28,8 +28,6 @@ const {
   computeScore,
   MALE_REPS,
   MALE_RUN,
-  FEMALE_REPS,
-  FEMALE_RUN,
 } = vm.runInNewContext(wrapped, {});
 
 // ---------------------------------------------------------------------------
