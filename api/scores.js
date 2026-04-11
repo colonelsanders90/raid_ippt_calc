@@ -53,6 +53,42 @@ async function ensureTable() {
   }
 }
 
+const VALID_RANKS = new Set([
+  'ME1T','ME1','ME2','ME3','ME4T','ME4A','ME4','ME5','ME6','ME7','ME8',
+  'REC','PTE','LCP','CPL','CFC','SCT',
+  '3SG','2SG','1SG','SSG','MSG',
+  '3WO','2WO','1WO','MWO','SWO','CWO',
+  'OCT',
+  '2LT','LTA','CPT','MAJ','LTC','SLTC','COL','BG','MG',
+]);
+
+const VALID_BRANCHES = new Set([
+  'ACUBE','Cloud','Cyber','IKC2','MDT','RDO','P4B','HQ RAiD',
+]);
+
+const VALID_GENDERS = new Set(['M', 'F']);
+
+function validatePost({ rank, name, gender, age, pushups, situps, run,
+                        puPts, suPts, runPts, total, award, branch }) {
+  if (!VALID_RANKS.has(rank))           return 'Invalid rank';
+  if (!name || typeof name !== 'string'
+      || name.length > 100
+      || !/^[A-Za-z\s'\-]+$/.test(name)) return 'Invalid name';
+  if (!VALID_GENDERS.has(gender))       return 'Invalid gender';
+  if (!VALID_BRANCHES.has(branch))      return 'Invalid branch';
+  if (!Number.isInteger(age)     || age < 16     || age > 100)   return 'Invalid age';
+  if (!Number.isInteger(pushups) || pushups < 0  || pushups > 60) return 'Invalid pushups';
+  if (!Number.isInteger(situps)  || situps < 0   || situps > 60)  return 'Invalid situps';
+  if (typeof run !== 'string'
+      || !/^\d{1,2}:[0-5]\d$/.test(run)) return 'Invalid run time';
+  if (!Number.isInteger(puPts)   || puPts < 0    || puPts > 25)   return 'Invalid puPts';
+  if (!Number.isInteger(suPts)   || suPts < 0    || suPts > 25)   return 'Invalid suPts';
+  if (!Number.isInteger(runPts)  || runPts < 0   || runPts > 50)  return 'Invalid runPts';
+  if (!Number.isInteger(total)   || total < 0    || total > 100)  return 'Invalid total';
+  if (!['Gold','Silver','Pass','Fail'].includes(award)) return 'Invalid award';
+  return null;
+}
+
 export default async function handler(req, res) {
   try {
     await ensureTable();
@@ -74,6 +110,12 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const { rank, name, gender, age, pushups, situps, run,
               puPts, suPts, runPts, total, award, branch } = req.body;
+
+      const validationError = validatePost({ rank, name, gender, age, pushups, situps, run,
+                                             puPts, suPts, runPts, total, award, branch });
+      if (validationError) {
+        return res.status(400).json({ error: validationError });
+      }
       const [row] = await sql`
         INSERT INTO scores
           (rank, name, gender, age, pushups, situps, run,
