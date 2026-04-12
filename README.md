@@ -102,6 +102,7 @@ Set these in your Vercel project dashboard (Settings → Environment Variables):
 |---|---|
 | `POSTGRES_URL` | Neon connection string (from the Neon dashboard) |
 | `ADMIN_PASSWORD` | Password required to delete leaderboard entries |
+| `ALLOWED_ORIGIN` | Your production URL e.g. `https://raid-ippt-calc.vercel.app` — restricts CORS to this origin only |
 
 For local dev, run `vercel env pull .env.local` to pull them down.
 

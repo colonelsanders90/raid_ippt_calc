@@ -2,9 +2,9 @@ import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.POSTGRES_URL);
 
-async function createTable() {
+async function ensureTable() {
   await sql`
-    CREATE TABLE scores (
+    CREATE TABLE IF NOT EXISTS scores (
       id         SERIAL PRIMARY KEY,
       rank       VARCHAR(10)  NOT NULL,
       name       VARCHAR(100) NOT NULL,
@@ -22,35 +22,6 @@ async function createTable() {
       created_at TIMESTAMPTZ  DEFAULT NOW()
     )
   `;
-}
-
-async function ensureTable() {
-  const cols = await sql`
-    SELECT column_name, ordinal_position
-    FROM   information_schema.columns
-    WHERE  table_name = 'scores'
-    ORDER  BY ordinal_position
-  `;
-
-  if (cols.length === 0) {
-    await createTable();
-    return;
-  }
-
-  const pos = Object.fromEntries(cols.map(c => [c.column_name, c.ordinal_position]));
-  const needsFix = !pos.branch || pos.branch > pos.gender;
-  if (!needsFix) return;
-
-  // branch is missing or comes after gender — fix it.
-  const [{ n }] = await sql`SELECT COUNT(*) AS n FROM scores`;
-  if (parseInt(n) === 0) {
-    // Safe to drop and recreate with correct column order.
-    await sql`DROP TABLE scores`;
-    await createTable();
-  } else {
-    // Has data — can't reorder, just add the column if missing.
-    await sql`ALTER TABLE scores ADD COLUMN IF NOT EXISTS branch VARCHAR(30) DEFAULT 'HQ RAiD'`;
-  }
 }
 
 const VALID_RANKS = new Set([
@@ -89,7 +60,25 @@ function validatePost({ rank, name, gender, age, pushups, situps, run,
   return null;
 }
 
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? '';
+
+function setCors(res, origin) {
+  if (ALLOWED_ORIGIN && origin === ALLOWED_ORIGIN) {
+    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+
 export default async function handler(req, res) {
+  const origin = req.headers.origin ?? '';
+  setCors(res, origin);
+
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   try {
     await ensureTable();
 
