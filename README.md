@@ -1,182 +1,123 @@
 # RAiD IPPT Calculator & Leaderboard
 
-A unit leaderboard and IPPT score calculator for regulars, NSFs, and NSmen from partner units. Built as a vanilla HTML/CSS/JS SPA, deployed on Vercel with a Neon Postgres database.
+Unit IPPT leaderboard and score calculator for regulars, NSFs, and NSmen from partner units. Vanilla HTML/CSS/JS SPA on Vercel with Neon Postgres.
 
 ---
 
 ## Features
 
-- **Leaderboard** — ranked table of all submitted scores with award badges, sorted by total
-- **By Age Group view** — grouped rankings that account for SAF's age-adjusted scoring
-- **By Branch view** — rankings grouped by sub-unit, sorted by average score with medal tiers
-- **Calculator** — live score estimator: sliders + typed inputs, no data stored
-- **Next-point hints** — shows exactly how many more reps or seconds are needed for the next point
-- **Award targets** — progress bars showing distance to Gold (85), Silver (75), Pass (51)
-- **Cash incentive display** — shows $300 (Gold) or $200 (Silver) when achieved
+- **Leaderboard** — Overall, By Age Group, and By Branch views (collapsible sections)
+- **Calculator** — live score estimator with next-point hints and award progress bars
+- **Submit Score** — form with SAF rank autocomplete and branch/sub-unit selection
+- **Award targets** — Gold (85), Silver (75), Pass (51) with $300/$200 cash incentive display
 - **Dark/light theme** — follows system preference, manually overridable
-- **Mobile responsive** — optimised column priority on small screens
-- **Admin deletes** — password-gated row deletion via `X-Admin-Password` header
+- **Mobile responsive** — priority columns on small screens
+- **Admin deletes** — password-gated via `X-Admin-Password` header
 
 ---
 
-## Tech Stack
+## Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | Vanilla HTML5, CSS3, JavaScript (ES6+) — no framework, no bundler |
+| Frontend | Vanilla HTML5, CSS3, ES6+ — no framework, no bundler |
 | Backend | Vercel Serverless Functions (ESM) |
-| Database | Neon Postgres (serverless) via `@neondatabase/serverless` |
-| Hosting | Vercel |
+| Database | Neon Postgres via `@neondatabase/serverless` |
 
 ---
 
 ## Project Structure
 
 ```
-raid_ippt_calc/
 ├── api/
-│   ├── scores.js          # GET (list) + POST (add entry) — serverless function
-│   └── scores/
-│       └── [id].js        # DELETE (admin-gated) — serverless function
-│
-├── assets/
-│   └── images/
-│       ├── White RAiD (Reg).svg   # Logo for dark mode
-│       └── Black RAiD (Reg).svg   # Logo for light mode
-│
+│   ├── scores.js          # GET (list) + POST (add) with server-side validation
+│   └── scores/[id].js     # DELETE — admin-gated
+├── assets/images/         # Dark/light mode logos
 ├── css/
-│   ├── base.css           # CSS custom properties (theme variables), reset, body
-│   ├── layout.css         # Header, nav, cards, page layout
-│   ├── form.css           # Inputs, selects, sliders, scroller fields, button
-│   ├── table.css          # Table, badges, branch pill, group headers, mobile hiding
-│   ├── chart.css          # Pie chart SVG and legend
-│   └── calculator.css     # Safety card, score block, station cards, award target rows
-│
+│   ├── base.css           # Theme variables, reset
+│   ├── layout.css         # Header, nav, cards
+│   ├── form.css           # Inputs, sliders, button
+│   ├── table.css          # Table, badges, branch pill, mobile hiding
+│   ├── chart.css          # Award distribution pie chart
+│   └── calculator.css     # Score block, station cards, target rows
 ├── js/
-│   ├── scoring-tables.js  # Raw IPPT lookup tables (MALE_REPS, MALE_RUN, FEMALE_REPS, FEMALE_RUN)
+│   ├── scoring-tables.js  # IPPT lookup tables (male/female reps + run)
 │   ├── scoring.js         # Pure scoring functions — no DOM, no API
-│   ├── sliders.js         # Shared slider ↔ display input sync utilities
-│   ├── theme.js           # Dark/light theme toggle, system preference sync
-│   ├── api.js             # Fetch wrappers for /api/scores (GET, POST, DELETE)
-│   ├── leaderboard.js     # Table render, form submit, delete, pie chart, view toggle
-│   └── calculator.js      # Live score estimation, safety quotes, next-point hints
-│
-├── scripts/
-│   └── seed.mjs           # Mock data seeder — POSTs entries to the live API
-│
+│   ├── sliders.js         # Slider ↔ display input sync, MM:SS formatting
+│   ├── theme.js           # Theme toggle and system preference sync
+│   ├── api.js             # Fetch wrappers for GET, POST, DELETE
+│   ├── leaderboard.js     # Table, chart, form, view toggle, delete
+│   └── calculator.js      # Live estimation, safety quotes, next-point hints
+├── scripts/seed.mjs       # Mock data seeder — POSTs to the live API
 ├── tests/
-│   └── scoring.test.cjs   # 87 unit tests for all pure scoring functions
-│
-├── index.html             # Single-page app shell — all three page views
-└── package.json
+│   ├── scoring.test.cjs        # 87 tests — scoring functions
+│   └── api-validation.test.cjs # 137 tests — validation, format utils, hints
+├── vercel.json            # Security headers
+└── index.html             # SPA shell — all three page views
 ```
 
 ---
 
 ## Getting Started
 
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) 18+
-- A [Vercel](https://vercel.com) account
-- A [Neon](https://neon.tech) Postgres database
-
-### Local Development
-
-Vercel's local dev server handles both static files and serverless functions:
+**Prerequisites:** Node.js 18+, Vercel account, Neon Postgres database.
 
 ```bash
 npm install -g vercel
-vercel dev
+vercel dev        # serves static files + API at http://localhost:3000
 ```
 
-Then open `http://localhost:3000`.
-
-> The app is static HTML — you can also open `index.html` directly in a browser for frontend-only work, but API calls will fail without `vercel dev`.
+> You can also open `index.html` directly for frontend-only work — API calls will fail without `vercel dev`.
 
 ### Environment Variables
 
-Set these in your Vercel project dashboard (Settings → Environment Variables):
+Set in Vercel dashboard → Settings → Environment Variables:
 
 | Variable | Description |
 |---|---|
-| `POSTGRES_URL` | Neon connection string (from the Neon dashboard) |
-| `ADMIN_PASSWORD` | Password required to delete leaderboard entries |
-| `ALLOWED_ORIGIN` | Your production URL e.g. `https://raid-ippt-calc.vercel.app` — restricts CORS to this origin only |
+| `POSTGRES_URL` | Neon connection string |
+| `ADMIN_PASSWORD` | Password to delete leaderboard entries |
+| `ALLOWED_ORIGIN` | Production URL e.g. `https://raid-ippt-calc.vercel.app` — restricts CORS |
 
-For local dev, run `vercel env pull .env.local` to pull them down.
+For local dev: `vercel env pull .env.local`
 
-### Running Tests
+### Tests
 
 ```bash
-node tests/scoring.test.cjs
+npm test   # runs both test suites — 224 tests total
 ```
 
-87 tests covering `getAgeGroup`, `getRepsPoints`, `getRunPoints`, `getAward`, and `computeScore` across all boundary conditions.
+### Seed Mock Data
+
+```bash
+node scripts/seed.mjs https://your-project.vercel.app        # 15 entries (default)
+node scripts/seed.mjs https://your-project.vercel.app 30     # custom count
+```
 
 ---
 
 ## API Reference
 
 ### `GET /api/scores`
-
-Returns all leaderboard entries ordered by total score descending.
-
-**Response** `200 OK`
-```json
-[
-  {
-    "id": 1,
-    "rank": "CPT",
-    "name": "Tan Wei Ming",
-    "branch": "Cyber",
-    "gender": "M",
-    "age": 28,
-    "pushups": 50,
-    "situps": 50,
-    "run": "9:30",
-    "puPts": 24,
-    "suPts": 24,
-    "runPts": 47,
-    "total": 95,
-    "award": "Gold",
-    "createdAt": "2026-04-11T08:00:00.000Z"
-  }
-]
-```
-
----
+Returns all entries ordered by total score descending.
 
 ### `POST /api/scores`
+Adds a new entry. All fields validated server-side before any DB write.
 
-Adds a new leaderboard entry. All fields are validated server-side.
-
-**Request body**
 ```json
 {
-  "rank": "CPT",
-  "name": "Tan Wei Ming",
-  "branch": "Cyber",
-  "gender": "M",
-  "age": 28,
-  "pushups": 50,
-  "situps": 50,
-  "run": "9:30",
-  "puPts": 24,
-  "suPts": 24,
-  "runPts": 47,
-  "total": 95,
-  "award": "Gold"
+  "rank": "CPT", "name": "Tan Wei Ming", "branch": "Cyber",
+  "gender": "M", "age": 28, "pushups": 50, "situps": 50, "run": "9:30",
+  "puPts": 24, "suPts": 24, "runPts": 47, "total": 95, "award": "Gold"
 }
 ```
 
-**Validation rules**
 | Field | Rule |
 |---|---|
-| `rank` | Must be a valid SAF rank from the allowlist |
-| `name` | Letters, spaces, hyphens, apostrophes only — max 100 chars |
+| `rank` | Valid SAF rank from allowlist |
+| `name` | Letters, spaces, hyphens, apostrophes — max 100 chars |
 | `gender` | `M` or `F` |
-| `branch` | One of: `ACUBE`, `Cloud`, `Cyber`, `IKC2`, `MDT`, `RDO`, `P4B`, `HQ RAiD` |
+| `branch` | `ACUBE`, `Cloud`, `Cyber`, `IKC2`, `MDT`, `RDO`, `P4B`, or `HQ RAiD` |
 | `age` | Integer 16–100 |
 | `pushups` / `situps` | Integer 0–60 |
 | `run` | `MM:SS` format |
@@ -185,75 +126,39 @@ Adds a new leaderboard entry. All fields are validated server-side.
 | `total` | Integer 0–100 |
 | `award` | `Gold`, `Silver`, `Pass`, or `Fail` |
 
-**Response** `201 Created` — returns the inserted row.
-
-**Error** `400 Bad Request` — returns `{ "error": "<reason>" }` for validation failures.
-
----
+Returns `201` with inserted row, or `400` with `{ "error": "<reason>" }`.
 
 ### `DELETE /api/scores/:id`
-
-Deletes a leaderboard entry. Admin-gated.
-
-**Headers**
-```
-X-Admin-Password: <your admin password>
-```
-
-**Response** `200 OK` — `{ "deleted": true }`
-
-**Errors**
-- `401 Unauthorized` — wrong or missing password
-- `404 Not Found` — no entry with that ID
+Requires `X-Admin-Password` header. Returns `200 { deleted: true }`, `401`, or `404`.
 
 ---
 
-## Seeding Mock Data
+## Scoring
 
-Use the seed script to populate the leaderboard for testing:
+Computed in `js/scoring.js` against tables in `js/scoring-tables.js`.
 
-```bash
-node scripts/seed.mjs https://your-project.vercel.app
-```
-
-Optional second argument sets the number of entries (default: 15):
-
-```bash
-node scripts/seed.mjs https://your-project.vercel.app 30
-```
-
----
-
-## IPPT Scoring Logic
-
-Scores are computed in `js/scoring.js` against lookup tables in `js/scoring-tables.js`.
-
-| Station | Max points |
+| Station | Max |
 |---|---|
 | Push-ups | 25 |
 | Sit-ups | 25 |
 | 2.4km Run | 50 |
 | **Total** | **100** |
 
-**Age groups** — 14 bands from Under-22 to 58–60. Older groups have lower pass thresholds, so the same number of reps or the same run time scores more points at higher ages.
+14 age bands (Under-22 → 58–60). Older groups score more points for the same performance.
 
-**Award thresholds**
-
-| Award | Score |
+| Award | Threshold |
 |---|---|
-| Gold | ≥ 85 |
-| Silver | ≥ 75 |
+| Gold | ≥ 85 · $300 |
+| Silver | ≥ 75 · $200 |
 | Pass | ≥ 51 |
 | Fail | < 51 |
 
-**Cash incentives** — Gold: $300 · Silver: $200 (displayed in Calculator when achieved)
-
 ---
 
-## Database Schema
+## Database
 
 ```sql
-CREATE TABLE scores (
+CREATE TABLE IF NOT EXISTS scores (
   id         SERIAL PRIMARY KEY,
   rank       VARCHAR(10)  NOT NULL,
   name       VARCHAR(100) NOT NULL,
@@ -272,32 +177,16 @@ CREATE TABLE scores (
 );
 ```
 
-The table is created automatically on first API request. Schema migrations (e.g. adding `branch`) are handled in `ensureTable()` using `information_schema` to detect and fix the live schema safely.
+Table is created automatically on first request. To reset: `TRUNCATE scores RESTART IDENTITY;` in the Neon SQL editor.
 
 ---
 
 ## Security
 
-- **SQL injection** — all queries use Neon tagged template literals; no string concatenation
-- **XSS** — all server data is passed through `escHtml()` before touching the DOM
-- **Input validation** — all POST fields are validated server-side with type, range, and allowlist checks before any DB write
-- **Admin auth** — deletes require `X-Admin-Password` matched against a Vercel environment variable; never stored in source
-- **Secrets** — `POSTGRES_URL` and `ADMIN_PASSWORD` are Vercel env vars, never in the repository
+- **SQL injection** — Neon tagged template literals; no string concatenation near queries
+- **XSS** — `escHtml()` applied to all server data before DOM insertion
+- **Input validation** — all POST fields type-checked, range-checked, and allowlisted server-side
+- **CORS** — `ALLOWED_ORIGIN` env var restricts cross-origin requests to your domain
+- **Security headers** — `CSP`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` via `vercel.json`
+- **Admin auth** — delete password checked against env var, never in source
 - **Dependencies** — 0 known vulnerabilities (`npm audit`)
-
----
-
-## Sub-units
-
-| Branch | Display Name |
-|---|---|
-| ACUBE | ACUBE |
-| Cloud | Cloud |
-| Cyber | Cyber |
-| IKC2 | IKC2 |
-| MDT | MDT |
-| RDO | RDO |
-| P4B | P4B |
-| HQ RAiD | HQ RAiD (Aether, PPCoE, CS) |
-
-NSmen from partner units are welcome to submit scores. Top 5 on the leaderboard at the end of IPPT season will receive prizes.
