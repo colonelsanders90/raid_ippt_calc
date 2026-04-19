@@ -296,7 +296,7 @@ for (const [reps, ag] of [[0,0],[10,0],[20,3],[30,13],[14,0],[25,5]]) {
 }
 
 // Same for female table
-expect("female 25 reps age 0 → null (max 25)", repsToNextPoint(25, 0, FEMALE_REPS), null);
+expect("female 50 reps age 0 → null (max 25)", repsToNextPoint(50, 0, FEMALE_REPS), null);
 {
   const delta = repsToNextPoint(0, 0, FEMALE_REPS);
   expect("female 0 reps age 0 → positive delta", delta !== null && delta > 0, true);

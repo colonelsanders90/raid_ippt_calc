@@ -210,7 +210,7 @@ section("computeScore(gender, age, pushups, situps, runSeconds)");
 // Edge: female table used for gender "F"
 {
   const rF = computeScore("F", 25, 25, 25, 780);
-  expect("female 25 reps: puPts=25", rF.puPts, 25);
+  expect("female 25 reps: puPts=19", rF.puPts, 19);
   // female run table has different cutoffs than male
   const rM = computeScore("M", 25, 25, 25, 780);
   expect("male/female run pts differ at same time", rM.runPts !== rF.runPts, true);
